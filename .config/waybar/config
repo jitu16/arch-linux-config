@@ -1,0 +1,24 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "fixed-center": true,
+    "exclusive": true,
+    "modules-left": ["sway/workspaces", "sway/window"],
+    "modules-center": ["clock"],
+    "modules-right": ["cpu", "memory", "battery", "custom/ibus"],
+
+    "cpu": { "interval": 10, "format": "CPU: {usage}%" },
+    "memory": { "interval": 10, "format": "RAM: {used}GB" },
+    "battery": {
+        "format": "Bat: {capacity}%"
+    },
+"custom/ibus": {
+    "exec": "ibus engine | sed 's/xkb:us::eng/EN/;s/ibus-avro/BN/'",
+    "interval": 1,
+    "format": "⌨ {}",
+    "on-click": "ibus engine ibus-avro",
+    "on-click-right": "ibus engine xkb:us::eng",
+    "tooltip": false
+}
+}

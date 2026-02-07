@@ -1,0 +1,26 @@
+/* GLOBAL RESET: Removes the hidden padding that forces the 36px height */
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "Noto Sans", "Symbols Nerd Font", sans-serif; /* Use your preferred font */
+    font-size: 13px; /* Smaller font helps reduce the minimum height */
+    min-height: 0;   /* Crucial: allows the bar to be smaller than default */
+}
+
+window#waybar {
+    background-color: rgba(43, 48, 59, 0.8);
+    border-bottom: 2px solid rgba(100, 114, 125, 0.5);
+    color: #ffffff;
+    /* Ensure the window itself doesn't have a forced height */
+    margin: 0;
+    padding: 0;
+}
+
+/* Adjust your existing modules to be slimmer */
+.modules-left, .modules-right {
+    padding: 0 5px; /* Reduced from 10px */
+}
+
+#clock, #cpu, #memory, #battery {
+    padding: 0 8px; /* Unified padding for a slimmer look */
+}

@@ -1,0 +1,269 @@
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec ibus-daemon -drx
+
+# Default config for sway
+#
+# Read `man 5 sway` for a complete reference.
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod4
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+# Your preferred terminal emulator
+set $term foot
+# Your preferred application launcher
+set $menu wofi --show drun
+
+### Output configuration
+
+# Start the idle manager on login
+exec ~/.config/sway/scripts/toggle-idle.sh
+# Prevent sleep if any application is fullscreen (Movies, YouTube, Games)
+for_window [class=".*"] inhibit_idle fullscreen
+for_window [app_id=".*"] inhibit_idle fullscreen
+
+# Set all windows to 90% opacity by default
+for_window [class=".*"] opacity 0.90
+for_window [app_id=".*"] opacity 0.90
+for_window [app_id="foot"] opacity 0.85
+for_window [app_id="firefox"] opacity 1.00
+
+# Status Bar:
+exec waybar
+
+include /etc/sway/config.d/*
+
+# Monitor Config
+output HDMI-A-1 pos 0 0 transform 270
+output eDP-1 pos 1080 0
+# Pin specific workspaces to specific outputs
+workspace 2 output HDMI-A-1
+workspace 1 output eDP-1
+# Focus Workspace 1 on the vertical monitor at startup
+workspace 1
+focus output eDP-1
+
+# Class                 Border  Bground Text    Indicator ChildBorder
+client.focused          #6272a4 #6272a4 #f8f8f2 #6272a4   #6272a4
+client.focused_inactive #44475a #282a36 #f8f8f2 #282a36   #282a36
+client.unfocused        #282a36 #282a36 #bfbfbf #282a36   #282a36
+client.urgent           #ff5555 #ff5555 #f8f8f2 #ff5555   #ff5555
+client.placeholder      #282a36 #282a36 #f8f8f2 #282a36   #282a36
+
+client.background       #f8f8f2
+
+default_border pixel 2
+# Force every terminal to start a vertical split and take 40% height
+for_window [app_id="foot"] layout splitv, splitv, resize set height 40 ppt
+
+### Key bindings
+#
+# Basics:
+#
+    # Start a terminal
+    bindsym $mod+Return exec $term
+
+    # Kill focused window
+    bindsym $mod+Shift+q kill
+
+    # Start your launcher
+    bindsym $mod+d exec $menu
+
+    # Drag floating windows by holding down $mod and left mouse button.
+    # Resize them with right mouse button + $mod.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    floating_modifier $mod normal
+
+    # Reload the configuration file
+    bindsym $mod+Shift+c reload
+
+    # Exit sway (logs you out of your Wayland session)
+    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+#
+# Moving around:
+#
+    # Move your focus around
+    bindsym $mod+$left focus left
+    bindsym $mod+$down focus down
+    bindsym $mod+$up focus up
+    bindsym $mod+$right focus right
+    # Or use $mod+[up|down|left|right]
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+
+    # Move the focused window with the same, but add Shift
+    bindsym $mod+Shift+$left move left
+    bindsym $mod+Shift+$down move down
+    bindsym $mod+Shift+$up move up
+    bindsym $mod+Shift+$right move right
+    # Ditto, with arrow keys
+    bindsym $mod+Shift+Left move left
+    bindsym $mod+Shift+Down move down
+    bindsym $mod+Shift+Up move up
+    bindsym $mod+Shift+Right move right
+#
+# Workspaces:
+#
+    # Switch to workspace
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    bindsym $mod+5 workspace number 5
+    bindsym $mod+6 workspace number 6
+    bindsym $mod+7 workspace number 7
+    bindsym $mod+8 workspace number 8
+    bindsym $mod+9 workspace number 9
+    bindsym $mod+0 workspace number 10
+    # Move focused container to workspace
+    bindsym $mod+Shift+1 move container to workspace number 1
+    bindsym $mod+Shift+2 move container to workspace number 2
+    bindsym $mod+Shift+3 move container to workspace number 3
+    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+Shift+5 move container to workspace number 5
+    bindsym $mod+Shift+6 move container to workspace number 6
+    bindsym $mod+Shift+7 move container to workspace number 7
+    bindsym $mod+Shift+8 move container to workspace number 8
+    bindsym $mod+Shift+9 move container to workspace number 9
+    bindsym $mod+Shift+0 move container to workspace number 10
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+#
+# Layout stuff:
+#
+    # You can "split" the current object of your focus with
+    # $mod+b or $mod+v, for horizontal and vertical splits
+    # respectively.
+    bindsym $mod+b splith
+    bindsym $mod+v splitv
+
+    # Switch the current container between different layout styles
+    bindsym $mod+s layout stacking
+    bindsym $mod+w layout tabbed
+    bindsym $mod+e layout toggle split
+
+    # Make the current focus fullscreen
+    bindsym $mod+f fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+Shift+space floating toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $mod+space focus mode_toggle
+
+    # Move focus to the parent container
+    bindsym $mod+a focus parent
+#
+# Scratchpad:
+#
+    # Sway has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+    bindsym $mod+Shift+minus move scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    bindsym $mod+minus scratchpad show
+#
+# Resizing containers:
+#
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    # Ditto, with arrow keys
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+#
+# Utilities:
+#
+    # Special keys to adjust volume via PulseAudio
+    bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle
+    bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -5%
+    bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +5%
+    bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+    # Special keys to adjust brightness via brightnessctl
+    bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+    bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+    # Special key to take a screenshot with grim
+    bindsym Print exec grim
+
+#
+#
+#
+#Custom Bindings Go here!
+#
+#
+#
+
+# Fast workspace travel: Super + Ctrl + j/k
+# 'next_on_output' keeps you on the same monitor—great for your HDMI setup!
+bindsym $mod+Control+l workspace next_on_output
+bindsym $mod+Control+h workspace prev_on_output
+# Opacity control
+#
+bindsym $mod+bracketleft opacity minus 0.05
+bindsym $mod+bracketright opacity plus 0.05
+
+# Keybinding: Press Super+Shift+i to toggle between scrensaver mode
+bindsym $mod+Shift+i exec ~/.config/sway/scripts/toggle-idle.sh
+
+# Static Mode: Write "static" to file AND trigger the service immediately
+bindsym $mod+Shift+w exec echo "static" > /tmp/sway_wallpaper_mode && systemctl --user start wallpaper.service && notify-send "Mode" "Static Wallpaper"
+
+# Video Mode: Write "video" to file AND trigger the service immediately
+bindsym $mod+Shift+m exec echo "video" > /tmp/sway_wallpaper_mode && systemctl --user start wallpaper.service && notify-send "Mode" "Video Wallpaper"
+
+#
+#
+#
+#Custom daemon/program start go here
+#
+#
+#
+exec emacs
+# --- Continuity & Notifications ---
+
+# 1. Mako: The Notification Server
+# Essential for seeing "Ping" and "Phone Call" popups
+exec mako
+
+# 2. KDE Connect Daemon
+# The background service that listens for your phone
+exec kdeconnectd
+
+# 3. KDE Connect Indicator (Optional)
+# Adds a small icon to your Waybar/Panel to see battery/status
+exec kdeconnect-indicator
+
+# 4. LocalSend (Optional)
+# Starts minimized so you can always receive files
+exec localsend_app --hidden
+
+#Start the wallpaper service IMMEDIATELY when Sway starts
+exec systemctl --user import-environment WAYLAND_DISPLAY SWAYSOCK
+exec_always systemctl --user start wallpaper.service
