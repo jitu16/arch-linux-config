@@ -15,7 +15,7 @@ set $down j
 set $up k
 set $right l
 # Your preferred terminal emulator
-set $term foot
+set $term alacritty
 # Your preferred application launcher
 set $menu wofi --show drun
 
@@ -30,7 +30,7 @@ for_window [app_id=".*"] inhibit_idle fullscreen
 # Set all windows to 90% opacity by default
 for_window [class=".*"] opacity 0.90
 for_window [app_id=".*"] opacity 0.90
-for_window [app_id="foot"] opacity 0.85
+for_window [app_id="Alacritty"] opacity 0.85
 for_window [app_id="firefox"] opacity 1.00
 
 # Status Bar:
@@ -59,7 +59,7 @@ client.background       #f8f8f2
 
 default_border pixel 2
 # Force every terminal to start a vertical split and take 40% height
-for_window [app_id="foot"] layout splitv, splitv, resize set height 40 ppt
+for_window [app_id="Alacritty"] layout splitv, splitv, resize set height 40 ppt
 
 ### Key bindings
 #
