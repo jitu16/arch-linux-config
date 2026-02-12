@@ -16,12 +16,16 @@
 (setq display-line-numbers-type 'relative)
 (add-to-list 'default-frame-alist '(undecorated . t)) ;; No title bars (Perfect for Sway)
 (add-to-list 'default-frame-alist '(alpha . 90))      ;; Transparency (The Physics HUD look)
-
+;; Automatically open .ipynb files in EIN mode
+(add-to-list 'auto-mode-alist '("\\.ipynb\\'" . ein:notebook-mode))
 ;; Make treemacs slightly wider for long LaTeX file names
 (setq treemacs-width 35)
 
 ;; --- ORG MODE ---
-(setq org-directory "~/org/")
+(setq org-directory "/home/code/work/notes/org-files/")
+
+
+(setq org-agenda-files (directory-files-recursively "/home/code/work/notes/org-files/" "\\.org$"))
 
 ;; --- INPUT HABITS ---
 (setq evil-escape-key-sequence "jk")
@@ -46,6 +50,11 @@
  'org-babel-load-languages
  '((shell . t)
    (emacs-lisp . t)))
+
+;; Force Org-mode to open PDFs specifically with Zathura
+(after! org
+  ;; The '%s' is a placeholder for the file path
+  (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s")))
 
 ;;Gmail Config
 (set-email-account! "Gmail"
@@ -156,3 +165,10 @@
 (map! :leader
       (:prefix-map ("f" . "file")
        :desc "Sudo reopen file" "s" #'+jitu/sudo-this-file))
+
+;; elfeed config
+(after! elfeed
+  (setq elfeed-search-filter "@3-days-ago +unread")
+  (elfeed-org)
+  (run-at-time nil (* 8 60 60) #'elfeed-update)
+  (add-hook 'elfeed-show-mode-hook #'visual-line-mode))

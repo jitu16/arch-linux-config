@@ -39,8 +39,11 @@ exec waybar
 include /etc/sway/config.d/*
 
 # Monitor Config
-output HDMI-A-1 pos 0 0 transform 270
-output eDP-1 pos 1080 0
+# Force 1440p @ 60Hz for smoothness (Fixes lag)
+output HDMI-A-1 mode 2560x1440@60Hz pos 0 0 transform 270
+
+# Laptop screen starts at 1440 (Width of the vertical monitor)
+output eDP-1 pos 1440 0
 # Pin specific workspaces to specific outputs
 workspace 2 output HDMI-A-1
 workspace 1 output eDP-1
@@ -238,6 +241,84 @@ bindsym $mod+Shift+w exec echo "static" > /tmp/sway_wallpaper_mode && systemctl 
 # Video Mode: Write "video" to file AND trigger the service immediately
 bindsym $mod+Shift+m exec echo "video" > /tmp/sway_wallpaper_mode && systemctl --user start wallpaper.service && notify-send "Mode" "Video Wallpaper"
 
+# ==============================================================================
+#  MONITOR CONTROL CENTER (Super + M)
+# ==============================================================================
+
+set $ext HDMI-A-1
+set $lap eDP-1
+
+mode "🖥️ Mode: [1|2] 1440p [3|4] 4K | Scale: [5-8] | [0] Clam [9] Dual" {
+
+    # --- 1440p MODES (Smooth 60Hz) ---
+
+    # [1] 1440p PORTRAIT (Vertical)
+    # Great for: Web browsing, long code files. Smooth mouse.
+    # Width: 1440px. Laptop starts at 1440.
+    bindsym 1 output $ext mode 2560x1440@60Hz transform 270 pos 0 0, output $lap pos 1440 0, mode "default"
+
+    # [2] 1440p LANDSCAPE (Horizontal)
+    # Great for: General use, YouTube, standard desktop.
+    # Width: 2560px. Laptop starts at 2560.
+    bindsym 2 output $ext mode 2560x1440@60Hz transform 0 pos 0 0, output $lap pos 2560 0, mode "default"
+
+
+    # --- 4K MODES (Sharp 30Hz) ---
+
+    # [3] 4K PORTRAIT (Vertical)
+    # Great for: Reading PDFs, reviewing code. Maximum sharpness.
+    # Width: 2160px. Laptop starts at 2160.
+    bindsym 3 output $ext mode 3840x2160@30Hz transform 270 pos 0 0, output $lap pos 2160 0, mode "default"
+
+    # [4] 4K LANDSCAPE (Horizontal)
+    # Great for: Cinema/Movies (24Hz/30Hz), Photo editing.
+    # Width: 3840px. Laptop starts at 3840.
+    bindsym 4 output $ext mode 3840x2160@30Hz transform 0 pos 0 0, output $lap pos 3840 0, mode "default"
+
+
+    # --- SCALING OPTIONS ---
+
+    # [5] Scale 1.0 (Native/Tiny)
+    bindsym 5 output $ext scale 1, mode "default"
+
+    # [6] Scale 1.25 (Balanced)
+    bindsym 6 output $ext scale 1.25, mode "default"
+
+    # [7] Scale 1.5 (Large)
+    bindsym 7 output $ext scale 1.5, mode "default"
+
+    # [8] Scale 2.0 (Hi-DPI / Very Large)
+    bindsym 8 output $ext scale 2, mode "default"
+
+
+    # --- CLAMSHELL / DUAL TOGGLES ---
+
+    # [0] CLAMSHELL (Laptop OFF)
+    bindsym 0 output $lap disable, mode "default"
+
+    # [9] DUAL SCREEN (Laptop ON)
+    # Resets laptop to a safe far position (3840) to prevent overlap
+    bindsym 9 output $lap enable pos 3840 0, mode "default"
+
+
+    # --- EXIT CONTROLS ---
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+m mode "default"
+}
+
+bindsym $mod+m mode "🖥️ Mode: [1|2] 1440p [3|4] 4K | Scale: [5-8] | [0] Clam [9] Dual"
+
+# ==============================================================================
+# 💻  AUTOMATIC CLAMSHELL (Lid Close Actions)
+# ==============================================================================
+
+# If I close the lid, disable the laptop screen (Saves GPU power for the 4K screen)
+bindswitch --reload --locked lid:on output $lap disable
+
+# If I open the lid, turn the laptop screen back on
+bindswitch --reload --locked lid:off output $lap enable
+
 #
 #
 #
@@ -267,3 +348,5 @@ exec localsend_app --hidden
 #Start the wallpaper service IMMEDIATELY when Sway starts
 exec systemctl --user import-environment WAYLAND_DISPLAY SWAYSOCK
 exec_always systemctl --user start wallpaper.service
+
+
