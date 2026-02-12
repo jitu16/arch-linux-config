@@ -40,10 +40,9 @@ include /etc/sway/config.d/*
 
 # Monitor Config
 # Force 1440p @ 60Hz for smoothness (Fixes lag)
-output HDMI-A-1 mode 2560x1440@60Hz pos 0 0 transform 270
-
+output HDMI-A-1 mode 2560x1440@60Hz pos 0 0 transform 0
 # Laptop screen starts at 1440 (Width of the vertical monitor)
-output eDP-1 pos 1440 0
+output eDP-1 pos 2560 0
 # Pin specific workspaces to specific outputs
 workspace 2 output HDMI-A-1
 workspace 1 output eDP-1

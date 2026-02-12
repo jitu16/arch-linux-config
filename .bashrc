@@ -28,3 +28,7 @@ if [[ ! "$SSH_AUTH_SOCK" ]]; then
     eval "$(<"$HOME/.ssh/agent.env")" > /dev/null
 fi
 alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
+alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
+alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
+alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
+alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
