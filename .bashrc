@@ -19,47 +19,12 @@ alias d="doom"
 
 echo "alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'" >> ~/.bashrc
 alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
-alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
+
+# Start SSH Agent if not running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -s > "$HOME/.ssh/agent.env"
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    eval "$(<"$HOME/.ssh/agent.env")" > /dev/null
+fi
 alias config='/usr/bin/git --git-dir=/home/jitu/.cfg/ --work-tree=/home/jitu'
