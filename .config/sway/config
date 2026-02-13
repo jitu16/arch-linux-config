@@ -1,6 +1,7 @@
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 exec ibus-daemon -drx
-
+# Start the media player daemon
+exec playerctld daemon
 # Default config for sway
 #
 # Read `man 5 sway` for a complete reference.
@@ -44,11 +45,11 @@ output HDMI-A-1 mode 2560x1440@60Hz pos 0 0 transform 0
 # Laptop screen starts at 1440 (Width of the vertical monitor)
 output eDP-1 pos 2560 0
 # Pin specific workspaces to specific outputs
-workspace 2 output HDMI-A-1
-workspace 1 output eDP-1
+workspace 1 output HDMI-A-1
+workspace 2 output eDP-1
 # Focus Workspace 1 on the vertical monitor at startup
 workspace 1
-focus output eDP-1
+focus output HDMI-A-1
 
 # Class                 Border  Bground Text    Indicator ChildBorder
 client.focused          #6272a4 #6272a4 #f8f8f2 #6272a4   #6272a4
@@ -239,6 +240,30 @@ bindsym $mod+Shift+w exec echo "static" > /tmp/sway_wallpaper_mode && systemctl 
 
 # Video Mode: Write "video" to file AND trigger the service immediately
 bindsym $mod+Shift+m exec echo "video" > /tmp/sway_wallpaper_mode && systemctl --user start wallpaper.service && notify-send "Mode" "Video Wallpaper"
+
+
+# --- Media Control (requires playerctl) ---
+# Play / Pause
+bindsym XF86AudioPlay exec playerctl play-pause
+
+# Next Track
+bindsym XF86AudioNext exec playerctl next
+
+# Previous Track
+bindsym XF86AudioPrev exec playerctl previous
+
+# --- Seeking (Fast Forward / Rewind) ---
+
+# $mod + Next Track = Fast Forward 5 seconds
+bindsym $mod+XF86AudioNext exec playerctl position 5+
+
+# $mod + Previous Track = Rewind 5 seconds
+bindsym $mod+XF86AudioPrev exec playerctl position 5-
+
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 # ==============================================================================
 #  MONITOR CONTROL CENTER (Super + M)

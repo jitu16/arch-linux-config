@@ -51,10 +51,15 @@
  '((shell . t)
    (emacs-lisp . t)))
 
+(add-hook 'org-mode-hook #'turn-on-org-cdlatex)
+
 ;; Force Org-mode to open PDFs specifically with Zathura
 (after! org
+  ;; Make cdlatex the highest priority for TAB in Org mode
+  (add-hook 'org-tab-first-hook #'org-try-cdlatex-tab)
   ;; The '%s' is a placeholder for the file path
   (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s")))
+
 
 ;;Gmail Config
 (set-email-account! "Gmail"
