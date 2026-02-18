@@ -3,7 +3,6 @@
 ;; --- IDENTITY ---
 (setq user-full-name "Zahidul Islam Jitu"
       user-mail-address "jitumstock@gmail.com")
-(server-start)
 ;; --- FONTS ---
 ;; We explicitly set this to the Nerd Font we installed on Arch
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 16 :weight 'semi-light)
@@ -13,7 +12,15 @@
 (setq doom-theme 'doom-one) ;; Or 'doom-dracula' if you liked the dark purple one
 
 ;; --- UI SETTINGS ---
+;; --- FORCE LINE NUMBERS EVERYWHERE ---
 (setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode t)
+(add-hook! 'special-mode-hook #'display-line-numbers-mode)
+(remove-hook! '(text-mode-hook
+                conf-mode-hook
+                special-mode-hook)
+              #'doom-disable-line-numbers-h)
+
 (add-to-list 'default-frame-alist '(undecorated . t)) ;; No title bars (Perfect for Sway)
 (add-to-list 'default-frame-alist '(alpha . 90))      ;; Transparency (The Physics HUD look)
 ;; Automatically open .ipynb files in EIN mode
@@ -30,6 +37,12 @@
 ;; --- INPUT HABITS ---
 (setq evil-escape-key-sequence "jk")
 (setq evil-escape-delay 0.2)
+
+;; Remap standard C/C++ modes to their Tree-sitter equivalents
+(after! cc-mode
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))
 
 ;; --- LATEX CONFIGURATION (Zathura Edition) ---
 (after! latex
@@ -60,23 +73,20 @@
   ;; The '%s' is a placeholder for the file path
   (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s")))
 
+;; --- HISTORY OPTIMIZATIONS ---
+(after! savehist
+  (setq savehist-additional-variables
+        (remove 'kill-ring savehist-additional-variables))
+  ;; Keep your M-x command history safe and plenty!
+  (setq history-length 1000)      ;; Keep 1000 commands
+  (setq history-delete-duplicates t))
 
-;;Gmail Config
-(set-email-account! "Gmail"
-  '((mu4e-sent-folder       . "/Gmail/[Gmail].Sent Mail")
-    (mu4e-drafts-folder     . "/Gmail/[Gmail].Drafts")
-    (mu4e-trash-folder      . "/Gmail/[Gmail].Trash")
-    (mu4e-refile-folder     . "/Gmail/[Gmail].All Mail")
-    (smtpmail-smtp-user     . "your.email@gmail.com")
-    (user-mail-address      . "your.email@gmail.com")
-    (mu4e-compose-signature . "--\nJitu"))
-  t)
-
-;; Use standard Gmail SMTP
-(setq message-send-mail-function 'smtpmail-send-it
-      smtpmail-stream-type 'starttls
-      smtpmail-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-service 587)
+;; elfeed config
+(after! elfeed
+  (setq elfeed-search-filter "@3-days-ago +unread")
+  (elfeed-org)
+  (run-at-time nil (* 8 60 60) #'elfeed-update)
+  (add-hook 'elfeed-show-mode-hook #'visual-line-mode))
 
 ;; Don't spellcheck LaTeX macros
 (setq ispell-skip-html t)
@@ -126,7 +136,7 @@
     (goto-char pos)))
 
 
-;; --- KEYBINDINGS (Linux Adapted) ---
+;; --- KEYBINDINGS ---
 ;; Note: On Linux, 'Alt' is 'Meta' by default. We don't need the "ns-command-modifier" hacks.
 
 ;; Map Space+c+i to cycle string case (camelCase -> snake_case)
@@ -140,6 +150,35 @@
       "<tab>" #'dired-subtree-toggle
       "TAB"   #'dired-subtree-toggle)
 
+;;Break Point for GDB
+(map! :leader
+      :prefix ("d" . "debug")
+      :desc "GUD Breakpoint" "b" #'gud-break)
+
+;; --- CUSTOM PROJECT BOOKMARKS ---
+(defun +jitu/project-bookmarks ()
+  "Filter bookmarks by project and jump to one."
+  (interactive)
+  (require 'bookmark)
+  (bookmark-maybe-load-default-file)
+
+  (let ((root (doom-project-root)))
+    (if (not root)
+        (message "Not in a project!")
+
+      (let* ((candidates
+              (cl-remove-if-not
+               (lambda (bm)
+                 (let ((file (bookmark-get-filename bm)))
+                   (and file (string-prefix-p root (expand-file-name file)))))
+               bookmark-alist))
+
+             (names (mapcar #'car candidates)))
+
+        (if names
+            (bookmark-jump (completing-read "Project Bookmarks: " names nil t))
+          (message "No bookmarks found in this project."))))))
+
 ;; Global keybinding: M-t toggles the Vterm popup
 (map! :g "M-t" #'+vterm/toggle)
 
@@ -152,7 +191,9 @@
 (use-package! drag-stuff
   :config
   (map! :nv "M-j" #'drag-stuff-down
-        :nv "M-k" #'drag-stuff-up))
+        :nv "M-k" #'drag-stuff-up
+       :nv "M-h" #'drag-stuff-left 
+       :nv "M-l" #'drag-stuff-right))
 
 ;; CDLaTeX Tab fix
 (after! cdlatex
@@ -171,9 +212,7 @@
       (:prefix-map ("f" . "file")
        :desc "Sudo reopen file" "s" #'+jitu/sudo-this-file))
 
-;; elfeed config
-(after! elfeed
-  (setq elfeed-search-filter "@3-days-ago +unread")
-  (elfeed-org)
-  (run-at-time nil (* 8 60 60) #'elfeed-update)
-  (add-hook 'elfeed-show-mode-hook #'visual-line-mode))
+;; Local project bookmark
+(map! :leader
+      (:prefix "b"
+       :desc "List Project Bookmarks" "L" #'+jitu/project-bookmarks))

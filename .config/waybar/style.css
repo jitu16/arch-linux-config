@@ -1,26 +1,44 @@
-/* GLOBAL RESET: Removes the hidden padding that forces the 36px height */
+@import "theme.css";
+
 * {
-    border: none;
-    border-radius: 0;
-    font-family: "Noto Sans", "Symbols Nerd Font", sans-serif; /* Use your preferred font */
-    font-size: 13px; /* Smaller font helps reduce the minimum height */
-    min-height: 0;   /* Crucial: allows the bar to be smaller than default */
+	/* ignore GTK theme */
+	all: initial;
+	color: @main-fg;
 }
 
-window#waybar {
-    background-color: rgba(43, 48, 59, 0.8);
-    border-bottom: 2px solid rgba(100, 114, 125, 0.5);
-    color: #ffffff;
-    /* Ensure the window itself doesn't have a forced height */
-    margin: 0;
-    padding: 0;
+@import "styles/fonts.css";
+@import "styles/modules-center.css";
+@import "styles/modules-left.css";
+@import "styles/modules-right.css";
+@import "styles/states.css";
+
+.module {
+	margin-bottom: -1px;
 }
 
-/* Adjust your existing modules to be slimmer */
-.modules-left, .modules-right {
-    padding: 0 5px; /* Reduced from 10px */
+#waybar {
+	background-color: @outline;
+}
+#waybar > box {
+	margin: 4px;
+	background-color: @main-bg;
 }
 
-#clock, #cpu, #memory, #battery {
-    padding: 0 8px; /* Unified padding for a slimmer look */
+button {
+	border-radius: 16px;
+	min-width: 16px;
+	padding: 0 10px;
+}
+button:hover {
+	background-color: @hover-bg;
+	color: @hover-fg;
+}
+
+tooltip {
+	border: 2px solid @main-br;
+	border-radius: 10px;
+	background-color: @main-bg;
+}
+tooltip > box {
+	padding: 0 6px;
 }
