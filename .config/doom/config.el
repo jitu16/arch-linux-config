@@ -3,16 +3,15 @@
 ;; --- IDENTITY ---
 (setq user-full-name "Zahidul Islam Jitu"
       user-mail-address "jitumstock@gmail.com")
+
 ;; --- FONTS ---
-;; We explicitly set this to the Nerd Font we installed on Arch
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 16 :weight 'semi-light)
       doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 16))
 
 ;; --- THEME ---
-(setq doom-theme 'doom-one) ;; Or 'doom-dracula' if you liked the dark purple one
+(setq doom-theme 'doom-one)
 
 ;; --- UI SETTINGS ---
-;; --- FORCE LINE NUMBERS EVERYWHERE ---
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode t)
 (add-hook! 'special-mode-hook #'display-line-numbers-mode)
@@ -21,16 +20,15 @@
                 special-mode-hook)
               #'doom-disable-line-numbers-h)
 
-(add-to-list 'default-frame-alist '(undecorated . t)) ;; No title bars (Perfect for Sway)
-(add-to-list 'default-frame-alist '(alpha . 90))      ;; Transparency (The Physics HUD look)
-;; Automatically open .ipynb files in EIN mode
+(add-to-list 'default-frame-alist '(undecorated . t))
+(add-to-list 'default-frame-alist '(alpha . 90))
+
 (add-to-list 'auto-mode-alist '("\\.ipynb\\'" . ein:notebook-mode))
-;; Make treemacs slightly wider for long LaTeX file names
+
 (setq treemacs-width 35)
 
 ;; --- ORG MODE ---
 (setq org-directory "/home/code/work/notes/org-files/")
-
 
 (setq org-agenda-files (directory-files-recursively "/home/code/work/notes/org-files/" "\\.org$"))
 
@@ -68,10 +66,9 @@
 
 ;; Force Org-mode to open PDFs specifically with Zathura
 (after! org
-  ;; Make cdlatex the highest priority for TAB in Org mode
   (add-hook 'org-tab-first-hook #'org-try-cdlatex-tab)
-  ;; The '%s' is a placeholder for the file path
-  (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s")))
+  (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
+  (setq org-highlight-latex-and-related '(native script)))
 
 ;; --- HISTORY OPTIMIZATIONS ---
 (after! savehist
@@ -199,7 +196,15 @@
 (after! cdlatex
   (map! :map cdlatex-mode-map
         :i "TAB" #'cdlatex-tab
-        :i "<tab>" #'cdlatex-tab))
+        :i "<tab>" #'cdlatex-tab)
+
+  ;; Map "tr" + TAB to the trace operator
+  (add-to-list 'cdlatex-command-alist
+               '("tr" "Insert trace operator" "\\operatorname{tr}?" cdlatex-position-cursor nil t))
+
+  ;; Map "Tr" + TAB to the capitalized trace operator
+  (add-to-list 'cdlatex-command-alist
+               '("Tr" "Insert trace operator" "\\operatorname{Tr}?" cdlatex-position-cursor nil t)))
 
 ;; Bind SPC c g to copying the whole error buffer with the code line
 (map! :leader
@@ -216,3 +221,14 @@
 (map! :leader
       (:prefix "b"
        :desc "List Project Bookmarks" "L" #'+jitu/project-bookmarks))
+
+
+
+;; Custom functions and keybindings just for latex
+(defun insert-latex-equation-break ()
+  "Insert a LaTeX newline, suppress equation numbering, and align the following line.
+
+  Inputs: None
+  Outputs: None"
+  (interactive)
+  (insert "\\nonumber \\\\\n&\\quad "))
