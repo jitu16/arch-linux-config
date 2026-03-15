@@ -55,6 +55,4 @@
 
 (package! dired-subtree)
 (package! string-inflection)
-(package! atomic-chrome)
-(package! gptel)
 (package! drag-stuff)

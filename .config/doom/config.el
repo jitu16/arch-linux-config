@@ -23,35 +23,72 @@
 (add-to-list 'default-frame-alist '(undecorated . t))
 (add-to-list 'default-frame-alist '(alpha . 90))
 
-(add-to-list 'auto-mode-alist '("\\.ipynb\\'" . ein:notebook-mode))
+(add-to-list 'auto-mode-alist '("\\.kbd\\'" . lisp-mode))
 
 (setq treemacs-width 35)
 
-;; --- ORG MODE ---
-(setq org-directory "/home/code/work/notes/org-files/")
 
-(setq org-agenda-files (directory-files-recursively "/home/code/work/notes/org-files/" "\\.org$"))
+;; --- Platform Specific Code ---
+(if (eq system-type 'darwin)
+    (progn
+      (setq org-directory "/Users/zjitu/work/notes/org-files/")
+      (setq org-agenda-files (directory-files-recursively "/Users/zjitu/work/notes/org-files/" "\\.org$"))
+      (after! latex (setq TeX-view-program-selection '((output-pdf "open"))))
+      (after! org   (add-to-list 'org-file-apps '("\\.pdf\\'" . "open %s"))))
+  (progn
+    (setq org-directory "/home/code/work/notes/org-files/")
+    (setq org-agenda-files (directory-files-recursively "/home/code/work/notes/org-files/" "\\.org$"))
+    (after! latex (setq TeX-view-program-selection '((output-pdf "Zathura"))))
+    (after! org   (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s")))))
 
 ;; --- INPUT HABITS ---
 (setq evil-escape-key-sequence "jk")
 (setq evil-escape-delay 0.2)
+(setq org-latex-compiler "xelatex")
 
-;; Remap standard C/C++ modes to their Tree-sitter equivalents
-(after! cc-mode
-  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode)))
+(require 'ox-latex)
 
 ;; --- LATEX CONFIGURATION (Zathura Edition) ---
 (after! latex
   (setq TeX-fold-unfold-around-mark t)
   (setq reftex-plug-into-AUCTeX t)
   (add-hook 'LaTeX-mode-hook #'turn-on-reftex)
-  (map! :map LaTeX-mode-map :n "g d" #'reftex-view-crossref)
+  (map! :map LaTeX-mode-map :n "g d" #'reftex-view-crossref))
 
-  ;; Use Zathura for viewing PDFs
-  (setq TeX-view-program-selection '((output-pdf "Zathura"))))
+;; Config for Beamer
+(add-to-list 'org-latex-classes
+             '("beamer"
+               "\\documentclass[presentation]{beamer}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
+(with-eval-after-load 'org
+  (add-to-list 'org-preview-latex-process-alist
+               '(xelatex-dvisvgm
+                 :programs ("xelatex" "dvisvgm")
+                 :description "xdv > svg"
+                 :message "you need xelatex and dvisvgm installed"
+                 :image-input-type "xdv"
+                 :image-output-type "svg"
+                 :image-size-adjust (1.7 . 1.5)
+                 :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+                 :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O")))
+  (setq org-preview-latex-default-process 'xelatex-dvisvgm))
+
+(after! cdlatex
+  (map! :map cdlatex-mode-map
+        :i "TAB" #'cdlatex-tab
+        :i "<tab>" #'cdlatex-tab)
+
+  (add-to-list 'cdlatex-command-alist
+               '("tr" "Insert trace operator" "\\operatorname{tr}?" cdlatex-position-cursor nil t))
+
+  (add-to-list 'cdlatex-command-alist
+               '("Tr" "Insert trace operator" "\\operatorname{Tr}?" cdlatex-position-cursor nil t))
+
+  (add-to-list 'cdlatex-command-alist
+               '("no" "Insert equation break with nonumber" "\\nonumber \\\\\n&\\quad ?" cdlatex-position-cursor nil t)))
 ;; Disable annoying chktex warning
 (after! flycheck
   (add-to-list 'flycheck-disabled-checkers 'tex-chktex))
@@ -62,12 +99,9 @@
  '((shell . t)
    (emacs-lisp . t)))
 
-(add-hook 'org-mode-hook #'turn-on-org-cdlatex)
-
 ;; Force Org-mode to open PDFs specifically with Zathura
 (after! org
   (add-hook 'org-tab-first-hook #'org-try-cdlatex-tab)
-  (add-to-list 'org-file-apps '("\\.pdf\\'" . "zathura %s"))
   (setq org-highlight-latex-and-related '(native script)))
 
 ;; --- HISTORY OPTIMIZATIONS ---
@@ -87,11 +121,13 @@
 
 ;; Don't spellcheck LaTeX macros
 (setq ispell-skip-html t)
-(add-hook 'latex-mode-hook 'flyspell-mode)
 
 ;; --- CUSTOM FUNCTIONS ---
 (defun +jitu/copy-flycheck-errors-with-code ()
-  "Copy error messages AND the offending line of code to clipboard."
+"Copy Flycheck error messages and the corresponding lines of code to the clipboard.
+
+Input: None
+Output: Returns the copied error string if errors exist, otherwise returns nil."
   (interactive)
   (if flycheck-current-errors
       (let ((errors (mapconcat
@@ -115,7 +151,10 @@
     (message "No errors to copy!")))
 
 (defun +jitu/yank-to-other-window-and-switch ()
-  "Yank current selection, paste in next window, and switch focus."
+"Yank the currently selected text or the current line, paste it into the next window, and switch focus to that window.
+
+Input: None
+Output: Returns nil."
   (interactive)
   (let ((text (if (use-region-p)
                   (buffer-substring (region-beginning) (region-end))
@@ -126,7 +165,10 @@
 
 ;; Define a function to reopen the current file as root
 (defun +jitu/sudo-this-file ()
-  "Open the current file as root using TRAMP."
+"Reopen the current file with root privileges using TRAMP while preserving the cursor position.
+
+Input: None
+Output: Returns nil."
   (interactive)
   (let ((pos (point)))
     (find-alternate-file (concat "/sudo::" (buffer-file-name)))
@@ -189,22 +231,8 @@
   :config
   (map! :nv "M-j" #'drag-stuff-down
         :nv "M-k" #'drag-stuff-up
-       :nv "M-h" #'drag-stuff-left 
+       :nv "M-h" #'drag-stuff-left
        :nv "M-l" #'drag-stuff-right))
-
-;; CDLaTeX Tab fix
-(after! cdlatex
-  (map! :map cdlatex-mode-map
-        :i "TAB" #'cdlatex-tab
-        :i "<tab>" #'cdlatex-tab)
-
-  ;; Map "tr" + TAB to the trace operator
-  (add-to-list 'cdlatex-command-alist
-               '("tr" "Insert trace operator" "\\operatorname{tr}?" cdlatex-position-cursor nil t))
-
-  ;; Map "Tr" + TAB to the capitalized trace operator
-  (add-to-list 'cdlatex-command-alist
-               '("Tr" "Insert trace operator" "\\operatorname{Tr}?" cdlatex-position-cursor nil t)))
 
 ;; Bind SPC c g to copying the whole error buffer with the code line
 (map! :leader
@@ -221,23 +249,3 @@
 (map! :leader
       (:prefix "b"
        :desc "List Project Bookmarks" "L" #'+jitu/project-bookmarks))
-
-
-
-;; Custom functions and keybindings just for latex
-(defun insert-latex-equation-break ()
-  "Insert a LaTeX newline, suppress equation numbering, and align the following line.
-
-  Inputs: None
-  Outputs: None"
-  (interactive)
-  (insert "\\nonumber \\\\\n&\\quad "))
-
-;; Config for Beamer
-(require 'ox-latex)
-(add-to-list 'org-latex-classes
-             '("beamer"
-               "\\documentclass[presentation]{beamer}"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
