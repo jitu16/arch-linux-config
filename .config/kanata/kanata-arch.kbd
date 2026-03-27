@@ -1,0 +1,107 @@
+;; kanata-arch.kbd
+;; NuPhy Air75 V2 + internal keyboard — Arch Linux
+;; Home row mod order: Gui Alt Ctrl Shift | Shift Ctrl Alt Gui
+;;
+;; Thumb cluster mirrors Corne layout:
+;;   lalt = Tab(tap)  / Nav(hold)
+;;   lmet = Bspc(tap) / Sym(hold)
+;;   spc  = Spc(tap)  / Num(hold)
+;;   rmet = Ent(tap)  / Sym(hold)
+;;   ralt = Esc(tap)  / Nav(hold)
+;;
+;; Mouse layer: hold both nav keys simultaneously
+;;
+;; Find your device paths with: ls /dev/input/by-id/ | grep event-kbd
+;; Replace the paths below with your actual device ids.
+
+(defcfg
+  linux-dev (
+    /dev/input/by-path/platform-i8042-serio-0-event-kbd
+    /dev/input/by-id/usb-Nordic_Semiconductor_NuPhy_Air75_V2_Dongle-event-kbd
+    /dev/input/by-id/usb-Nordic_Semiconductor_NuPhy_Air75_V2_Dongle-if01-event-kbd
+  )
+  process-unmapped-keys yes
+)
+
+(defsrc
+  tab  q    w    e    r    t    y    u    i    o    p
+  caps a    s    d    f    g    h    j    k    l    ;
+  lsft z    x    c    v    b    n    m    ,    .    /
+  lalt lmet spc  rmet ralt
+)
+
+(defalias
+ ;; Thumb cluster
+  navt (tap-hold-release 200 200 tab  (layer-while-held nav))
+  bsps (tap-hold-release 175 175 bspc (layer-while-held sym))
+  spcn (tap-hold-release 175 175 spc  (layer-while-held num))
+  rets (tap-hold-release 200 200 ret  (layer-while-held sym))
+  escn (tap-hold-release 175 175 esc  (layer-while-held nav))
+  moul (layer-while-held mouse)
+
+  ;; Mouse movement
+  msup (movemouse-up    1 4)
+  msdn (movemouse-down  1 4)
+  mslt (movemouse-left  1 4)
+  msrt (movemouse-right 1 4)
+  mwup (mwheel-up   50 120)
+  mwdn (mwheel-down 50 120)
+
+  ;; Arch Linux home row mods: Gui Alt Ctrl Shift | Shift Ctrl Alt hrma
+  hrma (tap-hold-release 200 200 a lmet)
+  hrms (tap-hold-release 175 175 s lalt)
+  hrmd (tap-hold-release 175 175 d lctl)
+  hrmf (tap-hold-release 175 175 f lsft)
+  hrmj (tap-hold-release 175 175 j rsft)
+  hrmk (tap-hold-release 175 175 k rctl)
+  hrml (tap-hold-release 175 175 l ralt)
+  hrmc (tap-hold-release 200 200 ; rmet)
+)
+
+;; BASE
+;; bottom row shifted left: lsft->z z->x x->c c->v v->b b->XX
+;; caps transparent (esc on ralt thumb)
+(deflayer base
+  @navt q     w     e     r     t     y     u     i     o     p
+  _     @hrma @hrms @hrmd @hrmf g     h     @hrmj @hrmk @hrml @hrmc
+  z     x     c     v     b     XX    n     m     ,     .     /
+  @escn @bsps @spcn @rets @navt
+)
+
+;; NAV -- F-keys top row, arrows + nav cluster right hand
+;; holding both nav thumb keys activates mouse layer
+(deflayer nav
+  _     f1    f2    f3    f4    f5    f6    f7    f8    f9    f10
+  _     _     _     _     _     _     left  down  up    rght  f11
+  _     _     _     _     _     _     home  pgdn  pgup  end   f12
+  @moul _     del   _     @moul
+)
+
+;; SYM
+;; Top:  _  -  ^  [  ]  !  |  %  $  @  *  #
+;; Home: _  `  +  (  )  '  |  "  {  }  _  =
+;; Bot:  _  _  _  &  |  _  |  _  \  ~  _  _
+(deflayer sym
+  _     -     S-6   [     ]     S-1   S-5   S-4   S-2   S-8   S-3
+  _     grv   S-=   S-9   S-0   '     S-'   S-[   S-]   S--   =
+  _     _     S-7   S-\   _     _     \     S-grv _     _     _
+  _     _     _     _     _
+)
+
+;; NUM -- numbers on top row, home row transparent for mod passthrough
+(deflayer num
+  _     1     2     3     4     5     6     7     8     9     0
+  _     _     _     _     _     _     _     _     _     _     _
+  _     _     _     _     _     _     _     _     _     _     _
+  _     _     _     _     _
+)
+
+;; MOUSE -- activated by holding both nav keys simultaneously (lalt+ralt)
+;; movement right hand, clicks left hand (d=right-click f=left-click)
+;; scroll on n/m
+(deflayer mouse
+  _     _     _     _     _     _     _     _     _     _     _
+  _     _     mrgt  mlft  _     @mslt @msdn @msup @msrt _     _
+  _     _     _     _     _     _     @mwup @mwdn _     _     _
+  _     _     _     _     _
+)

@@ -1,0 +1,30 @@
+# -- Visuals --
+font=monospace 10
+background-color=#2e3440
+text-color=#d8dee9
+border-color=#88c0d0
+border-size=2
+width=300
+height=100
+margin=10
+
+# -- Behavior --
+
+# Dismiss after 5 seconds
+default-timeout=15000
+
+# If I hover, keep it open
+ignore-timeout=1
+
+# -- Filters --
+
+# ignore "Spotify" notifications
+[app-name="Spotify"]
+invisible=1
+
+# Critical alerts (make them red and stick around longer)
+# Note: Mako uses "high" for critical
+[urgency=high]
+border-color=#bf616a
+# Stay until I click
+default-timeout=0
